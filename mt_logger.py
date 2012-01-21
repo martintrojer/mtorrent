@@ -81,7 +81,8 @@ class Logger(T.Thread):
     # Interface functions, called from other threads
 
     def log(self, s, level=INFO):
-        self.q.put(["log",s,level])
+        if level >= self.c["log_level"]:
+            self.q.put(["log",s,level])
 
     def get_last_log(self):
         q = Q.Queue()
