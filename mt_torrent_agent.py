@@ -261,14 +261,23 @@ class TorrentAgent(T.Thread):
             except:
                 pass
 
-            state_str = ['queued', 'checking', 'downloading metadata',
-                         'downloading', 'finished', 'seeding', 'allocating']
+            states = ['queued for checking', 'checking files', 'downloading metadata',
+                      'downloading', 'finished', 'seeding', 'allocating',
+                      'checking resume data']
+
+            state_str = ""
+
+            try:
+                state_str = states[status.state]
+            except:
+                self.l.log("TorrentAgent:unknown state for " + k, L.WARN)
+                state_str = "unknown"
 
             res.append({"name" : h.name(), 
                         "source" : k,
                         "hash" : str(h.info_hash()),
                         "size" : size,
-                        "status" : state_str[status.state],
+                        "status" : state_str,
                         "progress" : status.progress * 100,
                         "down_rate" : status.download_rate,
                         "up_rate" : status.upload_rate,
