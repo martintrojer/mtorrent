@@ -87,14 +87,14 @@ When torrents are removed (with the R UI command) the .torrent file in the watch
 
 Please note the just removing the .torrent file from the watch path will not stop and remove the torrent from the current session.
 
-## Adding .magnet URIs
+## Adding Magnet URIs
 
 Magned URIs are added (pasted) directly into the UI. The Enter key is used to toggle the magnet input mode. While you are in this mode a "magnet> " prompt will show at the bottom on the screen. 
 
 The typical workflow for adding magnet URIs are
 
 * Copy the URI to your clipboard in a browser
-* Bring up the mtorrent UI (probably 'screen -r'
+* Bring up the mtorrent UI (probably 'screen -r')
 * Press ENTER to enter the magnet input mode
 * Paste the magnet URI into to the mtorrent UI
 * Press ENTER
@@ -105,4 +105,4 @@ If configured accordingly, mtorrent will write out an HTML file with the current
 
 # Configuration
 
-The example.mtorrentc should be pretty self explanatory. If in doubts, check the [libtorrent docs](http://www.rasterbar.com/products/libtorrent/manual.html "libtorrent docs).
+The example.mtorrentc should be pretty self explanatory. If in doubts, check the [libtorrent docs](http://www.rasterbar.com/products/libtorrent/manual.html "libtorrent docs").

@@ -85,6 +85,3 @@ class Config:
         except:
             return default[key]
 
-if __name__ == "__main__":
-    c = Config()
-    c["ui_update_delay"]

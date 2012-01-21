@@ -89,7 +89,7 @@ def export_html(config, states, logger):
 
     res += "</TBODY></TABLE>"
     res += "<DIV ID='foot'>"
-    res += DT.datetime.now().strftime("%y-%m-%d %H:%M:%S")
+    res += DT.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     res += "<BR/>Copyright (c) 2010 Martin Trojer (martin.trojer@gmail.com)"
     res += "</DIV>"
     res += "</BODY></HTML>"
