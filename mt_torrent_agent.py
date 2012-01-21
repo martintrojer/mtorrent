@@ -51,7 +51,7 @@ class TorrentAgent(T.Thread):
             self.session.load_state(LT.bdecode(f.read()))
             f.close()
         except:
-            pass
+            self.l.log("TorrentAgent:failed to read session state " + self.c["session_file"], L.WARN)
 
         # Start extensions
         self.session.add_extension(LT.create_ut_metadata_plugin)

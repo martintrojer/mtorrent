@@ -86,8 +86,12 @@ class MTorrent:
                     self.l.log("Main:error writing html file " + self.c["html_file"], L.ERR)
 
             if (now - lts["scan"]).seconds > self.c["scan_update_delay"]:
-                files = U.scan_dir(self.c["watch_path"])
-                self.l.log("Main:scan_dir " + str(files), L.DBG)
+                files = {"torrent":[], "magnet":[]}
+                try:
+                    self.l.log("Main:scan_dir " + str(files), L.DBG)
+                    files = U.scan_dir(self.c["watch_path"])
+                except:
+                    self.l.log("Main:failed to scan dir " + self.c["watch_path"], L.WARN)
                 lts["scan"] = now
 
                 for t in files["torrent"]:
