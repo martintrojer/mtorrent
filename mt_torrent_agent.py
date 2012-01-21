@@ -68,7 +68,7 @@ class TorrentAgent(T.Thread):
         if self.c["use_upnp"]:
             self.session.start_upnp()
 
-    def __del__(self):
+    def __teardown(self):
         self.l.log("TorrentAgent:stopping")
         self.session.pause()
         resume_ctr = 0
@@ -310,6 +310,7 @@ class TorrentAgent(T.Thread):
             elif msg == "get_state":
                 item[1].put(self.__get_state())
             elif msg == "stop":
+                self.__teardown()
                 running = False
             else:
                 self.l.log("TorrentAgent:unknown message received " + str(msg), L.ERR)
