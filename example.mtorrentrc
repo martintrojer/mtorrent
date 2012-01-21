@@ -1,0 +1,40 @@
+[mtorrent]
+
+## Paths and filenames
+#save_path = .
+#session_path = session
+#session_file = %(session_path)s/mtorrent_session
+#watch_path = watch
+
+## HTML output
+#write_html = False
+#html_file = web/mtorrent_status.html
+
+## Logging
+##  levels; NONE=5, ERR=4, WARN=3, INFO=2, DBG=1, ALL=0
+#log_file = mtorrent.log
+#log_level = 3
+
+## Delay values, in seconds
+#state_update_delay = 2.5         # how often current download states are updated
+#ui_update_delay = 0.5            # how often the UI is rendered
+#scan_update_delay = 10           # how often the watch_path is scanned
+#html_update_delay = 15           # how ofter the html file is updated
+
+## Torrent client settings
+#listen_on = (6881, 6891)
+#use_dht = True
+#use_upnp = True
+#dht_router1 = ("router.bittorrent.com", 6881)
+#dht_router2 = ("router.utorrent.com", 6881)
+#dht_router3 = ("router.bitcomet.com", 6881)
+
+## Torrent client tweaks
+#max_connections = 50             # max number of connections per torrent
+#max_uploads = -1                 # max number of peers per torrent
+#ratio = 0                        # download / upload ration
+#upload_limit = 0                 # upload bandwidth limit (bytes per second)
+#download_limit = 0               # download bandwith limit (bytes per second)
+#ann_all_trackers = False         # for multitraacker torrents
+#optimize_hash_speed = False      # True if you have alot of RAM
+#dht_as_fallback = False          # Only use DHT if all trackers failed

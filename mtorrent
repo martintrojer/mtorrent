@@ -1,0 +1,6 @@
+#!/usr/bin/env python
+
+import mtorrent as MT
+
+mt = MT.MTorrent()
+mt.run()

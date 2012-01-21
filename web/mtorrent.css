@@ -1,0 +1,55 @@
+body
+{
+	line-height: 1.6em;
+}
+
+h2
+{
+	font-family: "Lucida Sans Unicode", "Lucida Grande", Sans-Serif;
+	text-align: center;
+	color: #039;
+}
+
+#mtorrent
+{
+	font-family: "Lucida Sans Unicode", "Lucida Grande", Sans-Serif;
+	font-size: 12px;
+//	margin: 45px;
+//	width: 480px;
+	text-align: center;
+	border-collapse: collapse;
+}
+
+#mtorrent th
+{
+	font-size: 13px;
+	font-weight: normal;
+	padding: 8px;
+	background: #b9c9fe url('gradhead.png') repeat-x;
+	border-top: 2px solid #d3ddff;
+	border-bottom: 1px solid #fff;
+	color: #039;
+}
+
+#mtorrent td
+{
+	padding: 8px; 
+	border-bottom: 1px solid #fff;
+	color: #669;
+	border-top: 1px solid #fff;
+	background: #e8edff url('gradback.png') repeat-x;
+}
+
+#mtorrent tbody tr:hover td
+{
+	background: #d0dafd url('gradhover.png') repeat-x;
+	color: #339;
+}
+
+#foot
+{
+	font-family: "Lucida Sans Unicode", "Lucida Grande", Sans-Serif;
+	font-size: 10px;
+	padding: 12px;
+	text-align: center;
+}
