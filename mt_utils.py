@@ -90,7 +90,7 @@ def export_html(config, states, logger):
     res += "</TBODY></TABLE>"
     res += "<DIV ID='foot'>"
     res += DT.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    res += "<BR/>Copyright (c) 2010 Martin Trojer (martin.trojer@gmail.com)"
+    res += '<BR/><a href="https://github.com/martintrojer/mtorrent">mtorrent</a>'
     res += "</DIV>"
     res += "</BODY></HTML>"
 
