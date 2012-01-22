@@ -85,7 +85,7 @@ class TorrentAgent(T.Thread):
         self.l.log("TorrentAgent:waiting for resume data...")
 
         while resume_ctr > 0:
-            a = self.session.wait_for_alert(30)    # 30 secs
+            a = self.session.wait_for_alert(30 * 1000)    # 30 secs
             if a == None:
                 self.l.log(
                     "TorrentAgent:aborting with outstanding torrents to save resume data", 
@@ -312,6 +312,7 @@ class TorrentAgent(T.Thread):
             elif msg == "stop":
                 self.__teardown()
                 running = False
+                item[1].put(True)
             else:
                 self.l.log("TorrentAgent:unknown message received " + str(msg), L.ERR)
             self.q.task_done()
@@ -344,4 +345,9 @@ class TorrentAgent(T.Thread):
         return r
 
     def stop(self):
-        self.q.put(["stop"])
+        q = Q.Queue()
+        self.q.put(["stop", q])
+        #blocks until teardown is complete
+        r = q.get()
+        q.task_done()
+        return r
