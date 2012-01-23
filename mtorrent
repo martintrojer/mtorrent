@@ -2,5 +2,8 @@
 
 import mtorrent as MT
 
-mt = MT.MTorrent()
-mt.run()
+try:
+    mt = MTorrent()
+    mt.run()
+except NameError as m:
+    print m
