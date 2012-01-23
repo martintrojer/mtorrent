@@ -23,7 +23,7 @@ import mt_config as C
 import mt_ui as UI
 import mt_utils as U
 
-import time
+import os
 import datetime as DT
 import pdb as P
 
@@ -38,14 +38,27 @@ TIMEOUT = -1
 class MTorrent:
     def __init__(self):
         self.c = C.Config()
-        self.l = L.Logger(self.c)
-        self.l.start()
-        self.ta = TA.TorrentAgent(self.c, self.l)
-        self.l.log("Main:starting the TorrentAgent")
-        self.ta.start()
-        self.l.log("Main:starting the StateManager")
-        self.sm = SM.StateManager(self.c, self.ta, self.l)
-        self.ui = UI.UI(self.c, self.sm, self.l)
+
+        self.lock_file = None
+        try:
+            os.stat(self.c["lock_file"])
+            raise NameError("mtorrent error; Lockfile present, you might have another mtorrent running? If not, delete the '%s' file and restart mtorrent" % self.c["lock_file"])
+        except OSError:
+            # os.stat() failed, which is good!
+            self.lock_file = open(self.c["lock_file"],'w')
+            self.l = L.Logger(self.c)
+            self.l.start()
+            self.ta = TA.TorrentAgent(self.c, self.l)
+            self.l.log("Main:starting the TorrentAgent")
+            self.ta.start()
+            self.l.log("Main:starting the StateManager")
+            self.sm = SM.StateManager(self.c, self.ta, self.l)
+            self.ui = UI.UI(self.c, self.sm, self.l)
+
+    def __del__(self):
+        if self.lock_file != None:
+            self.lock_file.close()
+            os.remove(self.c["lock_file"])
 
     def stop(self):
         self.l.log("Main:stopping the StateManager")
@@ -140,5 +153,8 @@ class MTorrent:
         self.stop()
 
 if __name__ == "__main__":
-    mt = MTorrent()
-    mt.run()
+    try:
+        mt = MTorrent()
+        mt.run()
+    except NameError as m:
+        print m

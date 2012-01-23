@@ -47,6 +47,7 @@ default = { "log_level": L.WARN,
             "watch_path": WATCH_PATH,
             "html_file": "web/mtorrent_status.html",
             "log_file": "mtorrent.log",
+            "lock_file": SESSION_PATH + "/mtorrent_lock",
             
             "save_path": ".",
             "storage_mode": LT.storage_mode_t.storage_mode_sparse,
