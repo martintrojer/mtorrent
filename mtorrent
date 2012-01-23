@@ -3,7 +3,7 @@
 import mtorrent as MT
 
 try:
-    mt = MTorrent()
+    mt = MT.MTorrent()
     mt.run()
 except NameError as m:
     print m
