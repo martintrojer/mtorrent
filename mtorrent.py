@@ -153,9 +153,11 @@ class MTorrent:
                 name = self.ta.remove_highlighted()
                 if name != None:
                     U.remove_file(name, self.l)
+                    self.sm.remove_file(name)
             elif ch == REMOVE_ALL:
                 for n in self.ta.remove_all():
                     U.remove_file(n, self.l)
+                    self.sm.remove_file(n)
         self.stop()
 
 if __name__ == "__main__":

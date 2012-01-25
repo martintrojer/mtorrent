@@ -21,6 +21,7 @@ import mt_logger as L
 import mt_utils as U
 
 import threading as T
+import sets as S
 
 class StateManager():
     def __init__(self, config, torrent_agent, logger):
@@ -29,6 +30,7 @@ class StateManager():
         self.l = logger
         self.state = {}
         self.scan = {"torrent": [], "magnet": []}
+        self.exclude = S.Set()
         self.running = True
         # We can get away with a lock here, the only one in the program!
         self.lock = T.Lock()
@@ -66,7 +68,8 @@ class StateManager():
 
     def __update_scan(self):
         if self.running:
-            files = {"torrent":[], "magnet":[]}            
+            self.exclude = S.Set()
+            files = {"torrent":[], "magnet": []}
             try:
                 self.l.log("StateManager:scan_dir " + self.c["watch_path"], L.DBG)
                 files = U.scan_dir(self.c["watch_path"])
@@ -91,7 +94,13 @@ class StateManager():
         res = self.scan
         self.lock.release()
 
-        return res
+        return {"torrent": S.Set(res["torrent"]) - self.exclude, 
+                "magnet": S.Set(res["magnet"]) - self.exclude}
+
+    def remove_file(self, name):
+        self.lock.acquire(True)
+        self.exclude.add(name)
+        self.lock.release()
 
     def stop(self):
         self.running = False
