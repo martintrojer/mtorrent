@@ -23,7 +23,7 @@ import mt_logger as L
 import ConfigParser as CP
 import os
 
-MTORRENT_VERSION = "0.3"
+MTORRENT_VERSION = "0.3.1"
 SESSION_PATH = "session"
 WATCH_PATH = "watch"
 
