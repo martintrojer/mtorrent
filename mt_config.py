@@ -27,7 +27,7 @@ MTORRENT_VERSION = "0.3"
 SESSION_PATH = "session"
 WATCH_PATH = "watch"
 
-default = { "log_level": L.ALL,
+default = { "log_level": L.WARN,
             "log_echo": False,    # echo log to STDOUT
             "write_html": False,
 
