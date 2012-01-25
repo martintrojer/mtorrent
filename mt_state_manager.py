@@ -96,7 +96,7 @@ class StateManager():
         return {"torrent": set(res["torrent"]) - self.exclude, 
                 "magnet": set(res["magnet"]) - self.exclude}
 
-    def remove_file(self, name):
+    def exclude_scan_file(self, name):
         self.lock.acquire(True)
         self.exclude.add(name)
         self.lock.release()
