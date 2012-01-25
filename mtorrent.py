@@ -119,8 +119,8 @@ class MTorrent:
 
             ch = self.ui.getch()
             self.l.log("Main:getch " + str(ch), L.DBG)
-            if ch != -1:
-                self.l.log("getch " + str(ch), L.WARN)
+#            if ch != -1:
+#                self.l.log("getch " + str(ch), L.WARN)
 
             if ipt != "":
                 if ch == TIMEOUT:
