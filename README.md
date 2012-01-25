@@ -70,10 +70,14 @@ The curses based UI supports the following commands.
 
 * Arrow up / down 
 Move the highlighted torrent file
-* R (capital R)
+* r
 Stop and remove the torrent file from the session
+* R (capital R)
+Stop and remove ALL torrent files in the session
 * s 
 Pause the torrent
+* S
+Pause ALL torrents
 * q
 Quit mtorrent (this might take a while to write out all resume data)
 * ENTER

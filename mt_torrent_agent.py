@@ -207,7 +207,7 @@ class TorrentAgent(T.Thread):
         if not self.handle_by_name.has_key(name):
             self.l.log("TorrentAgent:error removing torrent, not in current session " + 
                        name, L.ERR)
-            return
+            return None
 
         h, is_magnet = self.handle_by_name.pop(name)
         self.highlight = None
@@ -221,19 +221,46 @@ class TorrentAgent(T.Thread):
             self.session.remove_torrent(h)
         except:
             self.l.log("TorrentAgent:internal error remove torrent " + name, L.ERR)
-            return
+            return None
+
+        return name
+
+    def __remove_highlighted(self):
+        n = filter(lambda k: self.handle_by_name[k] == self.highlight, self.handle_by_name)
+        if len(n) == 1:
+            return self.__remove_torrent(n[0])
+
+    def __remove_all(self):
+        keys = self.handle_by_name.keys()
+        for k in keys:
+            self.__remove_torrent(k)
+        return keys
 
     def __toggle_pause(self, name):
         self.l.log("TorrentAgent:toggle_pause " + name)
 
         if not self.handle_by_name.has_key(name):
             self.l.log("TorrentAgent:torret not in session " + name, L.ERR)
+            return None
         else:
             h, im = self.handle_by_name[name]
             if h.is_paused():
                 h.resume()
             else:
                 h.pause()
+
+        return name
+
+    def __toggle_highlighted(self):
+        n = filter(lambda k: self.handle_by_name[k] == self.highlight, self.handle_by_name)
+        if len(n) == 1:
+            return self.__toggle_pause(n[0])
+
+    def __toggle_all(self):
+        keys = self.handle_by_name.keys()
+        for k in keys:
+            self.__toggle_pause(k)
+        return keys
 
     def __move_highlight(self, delta):
         vs = self.handle_by_name.values()
@@ -303,8 +330,16 @@ class TorrentAgent(T.Thread):
                 self.__add_magnet(item[1], item[2])
             elif msg == "remove_torrent":
                 self.__remove_torrent(item[1])
+            elif msg == "remove_highlighted":
+                item[1].put(self.__remove_highlighted())
+            elif msg == "remove_all":
+                item[1].put(self.__remove_all())
             elif msg == "toggle_pause":
                 self.__toggle_pause(item[1])
+            elif msg == "toggle_highlighted":
+                item[1].put(self.__toggle_highlighted())
+            elif msg == "toggle_all":
+                item[1].put(self.__toggle_all())
             elif msg == "move_highlight":
                 self.__move_highlight(item[1])
             elif msg == "get_state":
@@ -319,6 +354,13 @@ class TorrentAgent(T.Thread):
 
     # Interface functions, called from other threads
     
+    def __action_with_res(self, action):
+        q = Q.Queue()
+        self.q.put([action, q])
+        r = q.get()
+        q.task_done()
+        return r
+
     def add_torrent(self, fname):
         self.q.put(["add_torrent", fname])
 
@@ -328,8 +370,20 @@ class TorrentAgent(T.Thread):
     def remove_torrent(self, name):
         self.q.put(["remove_torrent", name])
 
+    def remove_highlighted(self):
+        return self.__action_with_res("remove_highlighted")
+
+    def remove_all(self):
+        return self.__action_with_res("remove_all")
+
     def toggle_pause(self, name):
         self.q.put(["toggle_pause", name])
+
+    def toggle_highlighted(self):
+        return self.__action_with_res("toggle_highlighted")
+
+    def toggle_all(self):
+        return self.__action_with_res("toggle_all")
 
     def highlight_up(self):
         self.q.put(["move_highlight", -1])
@@ -338,16 +392,8 @@ class TorrentAgent(T.Thread):
         self.q.put(["move_highlight", 1])
 
     def get_state(self):
-        q = Q.Queue()
-        self.q.put(["get_state", q])
-        r = q.get()
-        q.task_done()
-        return r
+        return self.__action_with_res("get_state")
 
     def stop(self):
-        q = Q.Queue()
-        self.q.put(["stop", q])
         #blocks until teardown is complete
-        r = q.get()
-        q.task_done()
-        return r
+        return self.__action_with_res("stop")

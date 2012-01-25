@@ -29,7 +29,9 @@ import pdb as P
 
 QUIT = 113
 PAUSE = 115
-REMOVE = 82
+PAUSE_ALL = 83
+REMOVE = 114
+REMOVE_ALL = 82
 UP = 65
 DOWN = 66
 NEWLINE = 10
@@ -117,6 +119,8 @@ class MTorrent:
 
             ch = self.ui.getch()
             self.l.log("Main:getch " + str(ch), L.DBG)
+            if ch != -1:
+                self.l.log("getch " + str(ch), L.WARN)
 
             if ipt != "":
                 if ch == TIMEOUT:
@@ -132,9 +136,9 @@ class MTorrent:
             elif ch == TIMEOUT:
                 pass
             elif ch == PAUSE:
-                s = filter(lambda s: s["is_highlighted"], self.sm.get_state())
-                if len(s) == 1:
-                    self.ta.toggle_pause(s[0]["source"])
+                self.ta.toggle_highlighted()
+            elif ch == PAUSE_ALL:
+                self.ta.toggle_all()
             elif ch == QUIT:
                 self.l.log("Shutting down...", L.WARN)
                 self.ui.refresh(ctr, "")
@@ -146,10 +150,12 @@ class MTorrent:
             elif ch == NEWLINE:
                 ipt = " "
             elif ch == REMOVE:
-                s = filter(lambda s: s["is_highlighted"], self.sm.get_state())
-                if len(s) == 1:
-                    self.ta.remove_torrent(s[0]["source"])
-                    U.remove_file(s[0]["source"], self.l)
+                name = self.ta.remove_highlighted()
+                if name != None:
+                    U.remove_file(name, self.l)
+            elif ch == REMOVE_ALL:
+                for n in self.ta.remove_all():
+                    U.remove_file(n, self.l)
         self.stop()
 
 if __name__ == "__main__":
