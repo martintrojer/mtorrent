@@ -59,7 +59,7 @@ class StateManager():
             self.l.log("StateManager:requesting the state", L.DBG)
             res = self.ta.get_state()
 
-            self.lock.acquire(True)
+            self.lock.acquire()
             self.state = res
             self.lock.release()        
 
@@ -67,37 +67,37 @@ class StateManager():
 
     def __update_scan(self):
         if self.running:
-            self.exclude = set()
             files = {"torrent":[], "magnet": []}
             try:
                 self.l.log("StateManager:scan_dir " + self.c["watch_path"], L.DBG)
                 files = U.scan_dir(self.c["watch_path"])
             except:
                 self.l.log("StateManager:failed to scan dir " + self.c["watch_path"], L.WARN)
-
-            self.lock.acquire(True)
+            self.lock.acquire()
             self.scan = files
+            self.exclude = set()
             self.lock.release()        
 
             self.__start_scan_timer()
             
     def get_state(self):
-        self.lock.acquire(True)
+        self.lock.acquire()
         res = self.state
         self.lock.release()
 
         return res
 
     def get_scan(self):
-        self.lock.acquire(True)
+        self.lock.acquire()
         res = self.scan
+        excl = self.exclude
         self.lock.release()
 
-        return {"torrent": set(res["torrent"]) - self.exclude, 
-                "magnet": set(res["magnet"]) - self.exclude}
+        return {"torrent": set(res["torrent"]) - excl, 
+                "magnet": set(res["magnet"]) - excl}
 
     def exclude_scan_file(self, name):
-        self.lock.acquire(True)
+        self.lock.acquire()
         self.exclude.add(name)
         self.lock.release()
 
