@@ -27,7 +27,7 @@ def readable_size(size):
     while size > 1024:
         size = size / 1024
         i += 1
-    return "%.2f%s" % (size, units[i])
+    return "%.1f%s" % (size, units[i])
 
 # cuts and pads the string to get the "scrolling" effect
 def chop_string(s, size, ctr, state):

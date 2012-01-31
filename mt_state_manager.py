@@ -15,7 +15,6 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 # Class that maintains the torrent states data for the UI
-# .. and the scan data of the watch folder
 
 import mt_logger as L
 import mt_utils as U
@@ -28,18 +27,14 @@ class StateManager():
         self.ta = torrent_agent
         self.l = logger
         self.state = {}
-        self.scan = {"torrent": [], "magnet": []}
-        self.exclude = set()
         self.running = True
         # We can get away with a lock here, the only one in the program!
         self.lock = T.Lock()
         self.__start_state_timer()
-        self.__start_scan_timer()
 
     def __del__(self):
         try:
             self.state_timer.cancel()
-            self.scan_timer.cancel()
             self.lock.release()
         except:
             pass
@@ -49,57 +44,23 @@ class StateManager():
             self.state_timer = T.Timer(self.c["state_update_delay"], self.__update_state)
             self.state_timer.start()
 
-    def __start_scan_timer(self):
-        if self.running:
-            self.scan_timer = T.Timer(self.c["scan_update_delay"], self.__update_scan)
-            self.scan_timer.start()
-
     def __update_state(self):
         if self.running:
             self.l.log("StateManager:requesting the state", L.DBG)
             res = self.ta.get_state()
 
-            self.lock.acquire()
+            self.lock.acquire(True)
             self.state = res
             self.lock.release()        
 
             self.__start_state_timer()
 
-    def __update_scan(self):
-        if self.running:
-            files = {"torrent":[], "magnet": []}
-            try:
-                self.l.log("StateManager:scan_dir " + self.c["watch_path"], L.DBG)
-                files = U.scan_dir(self.c["watch_path"])
-            except:
-                self.l.log("StateManager:failed to scan dir " + self.c["watch_path"], L.WARN)
-            self.lock.acquire()
-            self.scan = files
-            self.exclude = set()
-            self.lock.release()        
-
-            self.__start_scan_timer()
-            
     def get_state(self):
-        self.lock.acquire()
+        self.lock.acquire(True)
         res = self.state
         self.lock.release()
 
         return res
-
-    def get_scan(self):
-        self.lock.acquire()
-        res = self.scan
-        excl = self.exclude
-        self.lock.release()
-
-        return {"torrent": set(res["torrent"]) - excl, 
-                "magnet": set(res["magnet"]) - excl}
-
-    def exclude_scan_file(self, name):
-        self.lock.acquire()
-        self.exclude.add(name)
-        self.lock.release()
 
     def stop(self):
         self.running = False

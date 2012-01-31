@@ -62,6 +62,8 @@ class UI():
             self.print_with_tag(s, "WARNING> ", line)
         elif level == L.ERR:
             self.print_with_tag(s, "ERROR> ", line)
+        else:
+            self.print_with_tag(s, "$ ", line)
             
     def getch(self):
         return self.w.getch()
@@ -114,9 +116,16 @@ class UI():
             if s["is_highlighted"]: self.w.attroff(CUR.A_REVERSE)
             i += 1
 
+        i += 2
+        cut = DT.datetime.now() - DT.timedelta(seconds = self.c["message_delay"])
+
+        for l in filter(lambda l: l[1] > cut , self.l.get_ui()):
+            self.print_message(l[0], 100, i)
+            i += 1
+
         ll = self.l.get_last_log()
-        if (DT.datetime.now() - ll[2]).seconds < self.c["message_delay"]:
-            self.print_message(ll[0], ll[1], i+2)
+        if (ll[2] > cut):
+            self.print_message(ll[0], ll[1], i)
 
         if ipt != "":
             self.print_with_tag(ipt, "magnet>", y-1)

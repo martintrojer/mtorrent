@@ -33,7 +33,8 @@ class Logger(T.Thread):
         self.c = config
         self.q = Q.Queue()
         self.file = open(self.c["log_file"],'a+')
-        self.last_log = ["",0,DT.datetime.now()]
+        self.last_log = ["",0,DT.datetime.now() - DT.timedelta(minutes=1)]
+        self.ui_logs = []
 
     def __del__(self):
         self.file.close()
@@ -61,6 +62,9 @@ class Logger(T.Thread):
         if level >= WARN:
             self.last_log = [s, level, DT.datetime.now()]
 
+    def __do_log_ui(self, s):
+        self.ui_logs.append([s, DT.datetime.now()])
+
     def run(self):
         self.__do_log("LoggerAgent:starting", INFO)
         running = True
@@ -70,8 +74,12 @@ class Logger(T.Thread):
             msg = item[0]
             if msg == "log":
                 self.__do_log(item[1], item[2])
+            elif msg == "log_ui":
+                self.__do_log_ui(item[1])
             elif msg == "get_last":
                 item[1].put(self.last_log)
+            elif msg == "get_ui":
+                item[1].put(self.ui_logs)
             elif msg == "stop":
                 running = False
             else:
@@ -80,16 +88,25 @@ class Logger(T.Thread):
     
     # Interface functions, called from other threads
 
-    def log(self, s, level=INFO):
-        if level >= self.c["log_level"]:
-            self.q.put(["log",s,level])
-
-    def get_last_log(self):
+    def __action_with_res(self, action):
         q = Q.Queue()
-        self.q.put(["get_last", q])
+        self.q.put([action, q])
         r = q.get()
         q.task_done()
         return r
 
+    def log(self, s, level=INFO):
+        if level >= self.c["log_level"]:
+            self.q.put(["log",s,level])
+
+    def log_ui(self, s):
+        self.q.put(["log_ui", s])
+
+    def get_last_log(self):
+        return self.__action_with_res("get_last")
+
+    def get_ui(self):
+        return self.__action_with_res("get_ui")
+ 
     def stop(self):
         self.q.put(["stop"])

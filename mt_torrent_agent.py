@@ -92,23 +92,27 @@ class TorrentAgent(T.Thread):
                     L.WARN)
                 break
 
-            resume_ctr = resume_ctr - 1
-
             dummy = self.session.pop_alert()
-            if a.what() != "save resume data complete": 
+            if a.what() == "save resume data complete":
+                filename = self.c["session_path"]+"/"+str(a.handle.info_hash())+".resume"
+                try:
+                    f = open(filename,'wb')
+                    self.l.log("TorrentAgent:writing resume data to " + filename, L.DBG)
+                    self.l.log_ui("Writing resume data to " + filename)
+                    f.write(LT.bencode(a.resume_data))
+                    f.close()
+                except:
+                    self.l.log("TorrentAgent:error saving resume data " + filename, L.ERR)
+            elif a.what() == "save resume data failed": 
+                self.l.log_ui("No resume data for " + a.handle.name())
                 self.l.log(
                     "TorrentAgent:error getting resume data for " + a.handle.name() + 
                     " " + a.what(), L.WARN)
+            else:
+                self.l.log("TorrentAgent:unknown altert received " + a.what(), L.WARN)
                 continue
 
-            filename = self.c["session_path"]+"/"+str(a.handle.info_hash())+".resume"
-            try:
-                f = open(filename,'wb')
-                self.l.log("TorrentAgent:writing resume data to " + filename, L.DBG)
-                f.write(LT.bencode(a.resume_data))
-                f.close()
-            except:
-                self.l.log("TorrentAgent:error saving resume data " + filename, L.ERR)
+            resume_ctr = resume_ctr - 1
             
         # Save state for the entire session
         self.l.log("TorrentAgent:saving session state", L.DBG)
@@ -146,7 +150,7 @@ class TorrentAgent(T.Thread):
         self.l.log("TorrentAgent:adding torrent " + filename)
 
         if self.__check_dups(filename):
-            self.l.log("TorrentAgent:skipping, already added " + filename, L.INFO)
+            self.l.log("TorrentAgent:skipping, already added " + filename)
             return 
 
         torrent_data = None
@@ -168,11 +172,33 @@ class TorrentAgent(T.Thread):
         self.__setup_handle(h)
         self.handle_by_name[filename] = (h, False)
 
+    def __scan_and_add(self, path):
+        self.l.log("TorrentAgent:scanning path " + path, L.DBG)
+        files = {"torrent":[], "magnet": []}
+        try:
+            files = U.scan_dir(path)
+        except:
+            self.l.log("TorrentAgent:failed to scan dir " + path, L.WARN)
+
+        for t in files["torrent"]:
+            if not self.__check_dups(t):
+                self.__add_torrent(t)
+        for m in files["magnet"]:
+            try:
+                f = open(m, "rb")
+                uri = f.read()
+                f.close()
+                if not self.__check_dups(uri):
+                    info_hash = m.split(".magnet")[0]
+                    self.__add_magnet(uri, info_hash)
+            except:
+                self.l.log("TorrentAgent:error reading from " + m, L.ERR)
+
     def __add_magnet(self, uri, info_hash):
         self.l.log("TorrentAgent:adding magnet " + uri)
 
         if self.__check_dups(uri):
-            self.l.log("TorrentAgent:skipping, already added " + uri, L.INFO)
+            self.l.log("TorrentAgent:skipping, already added " + uri)
             return 
 
         resume_data = self.__get_resume_data(info_hash)
@@ -212,9 +238,14 @@ class TorrentAgent(T.Thread):
         h, is_magnet = self.handle_by_name.pop(name)
         self.highlight = None
 
+        # remove any resume file
         U.remove_file(self.c["session_path"] + "/" + str(h.info_hash()) + ".resume", self.l)
+
+        # remove the source file
         if is_magnet:
             U.remove_file(self.c["watch_path"] + "/" + str(h.info_hash()) + ".magnet", self.l)
+        else:
+            U.remove_file(name, self.l)
 
         # remove the torrent from the session
         try:
@@ -326,6 +357,8 @@ class TorrentAgent(T.Thread):
             msg = item[0]
             if msg == "add_torrent":
                 self.__add_torrent(item[1])
+            elif msg == "scan_and_add":
+                self.__scan_and_add(item[1])
             elif msg == "add_magnet":
                 self.__add_magnet(item[1], item[2])
             elif msg == "remove_torrent":
@@ -363,6 +396,9 @@ class TorrentAgent(T.Thread):
 
     def add_torrent(self, fname):
         self.q.put(["add_torrent", fname])
+
+    def scan_and_add(self, path):
+        self.q.put(["scan_and_add", path])
 
     def add_magnet(self, uri, info_hash):
         self.q.put(["add_magnet", uri, info_hash])

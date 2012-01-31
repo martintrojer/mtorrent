@@ -80,17 +80,18 @@ class MTorrent:
                 "scan" : DT.datetime.now() }
 
         self.ui.refresh(ctr, ipt)
+        self.l.log_ui("Welcome!")
 
         while running:
             #only update the screen ever so often
             now = DT.datetime.now()
-
-            if (now - lts["ui"]).seconds > self.c["ui_update_delay"]:
+            
+            if (lts["ui"] < now - DT.timedelta(seconds = self.c["ui_update_delay"])):
                 self.ui.refresh(ctr, ipt)
                 lts["ui"] = now
                 ctr += 1
     
-            if self.c["write_html"] and ((now - lts["html"]).seconds > self.c["html_update_delay"]):
+            if self.c["write_html"] and (lts["html"] < now - DT.timedelta(seconds = self.c["html_update_delay"])):
                 html = U.export_html(self.c, self.sm.get_state(), self.l)        
                 lts["html"] = now
                 try:
@@ -100,22 +101,9 @@ class MTorrent:
                 except:
                     self.l.log("Main:error writing html file " + self.c["html_file"], L.ERR)
 
-            if (now - lts["scan"]).seconds > self.c["scan_update_delay"]:
+            if (lts["scan"] < now - DT.timedelta(seconds = self.c["scan_update_delay"])):
                 lts["scan"] = now
-                files = self.sm.get_scan()
-
-                for t in files["torrent"]:
-                    self.ta.add_torrent(t)
-
-                for m in files["magnet"]:
-                    try:
-                        f = open(m, "rb")
-                        uri = f.read()
-                        f.close()
-                        info_hash = m.split(".magnet")[0]
-                        self.ta.add_magnet(uri, info_hash)
-                    except:
-                        self.l.log("Main:error reading from " + m, L.ERR)
+                self.ta.scan_and_add(self.c["watch_path"])
 
             ch = self.ui.getch()
             self.l.log("Main:getch " + str(ch), L.DBG)
@@ -140,7 +128,7 @@ class MTorrent:
             elif ch == PAUSE_ALL:
                 self.ta.toggle_all()
             elif ch == QUIT:
-                self.l.log("Shutting down...", L.WARN)
+                self.l.log_ui("Shutting down...")
                 self.ui.refresh(ctr, "")
                 running = False
             elif ch == UP:
@@ -152,12 +140,11 @@ class MTorrent:
             elif ch == REMOVE:
                 name = self.ta.remove_highlighted()
                 if name != None:
-                    U.remove_file(name, self.l)
-                    self.sm.exclude_scan_file(name)
+                    self.l.log_ui("Removed file " + name)
             elif ch == REMOVE_ALL:
                 for n in self.ta.remove_all():
-                    U.remove_file(n, self.l)
-                    self.sm.exclude_scan_file(n)
+                    self.l.log_ui("Removed file " + n)
+
         self.stop()
 
 if __name__ == "__main__":
