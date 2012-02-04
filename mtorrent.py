@@ -75,9 +75,9 @@ class MTorrent:
         ipt = ""
         ctr = 0
 
-        lts = { "ui" : DT.datetime.now(),
-                "html" : DT.datetime.now(),
-                "scan" : DT.datetime.now() }
+        lts = { "ui" : DT.datetime.now() - DT.timedelta(seconds = 1),
+                "html" : DT.datetime.now() - DT.timedelta(seconds = 2),
+                "scan" : DT.datetime.now() - DT.timedelta(seconds = 3)}
 
         self.ui.refresh(ctr, ipt)
         self.l.log_ui("Welcome!")

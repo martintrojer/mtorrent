@@ -109,7 +109,7 @@ class TorrentAgent(T.Thread):
                     "TorrentAgent:error getting resume data for " + a.handle.name() + 
                     " " + a.what(), L.WARN)
             else:
-                self.l.log("TorrentAgent:unknown altert received " + a.what(), L.WARN)
+                self.l.log("TorrentAgent:unknown alert received " + a.what(), L.WARN)
                 continue
 
             resume_ctr = resume_ctr - 1
@@ -243,9 +243,8 @@ class TorrentAgent(T.Thread):
 
         # remove the source file
         if is_magnet:
-            U.remove_file(self.c["watch_path"] + "/" + str(h.info_hash()) + ".magnet", self.l)
-        else:
-            U.remove_file(name, self.l)
+            name = self.c["watch_path"] + "/" + str(h.info_hash()) + ".magnet"        
+        U.remove_file(name, self.l)
 
         # remove the torrent from the session
         try:
