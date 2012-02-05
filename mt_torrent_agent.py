@@ -261,10 +261,10 @@ class TorrentAgent(T.Thread):
             return self.__remove_torrent(n[0])
 
     def __remove_all(self):
-        keys = self.handle_by_name.keys()
-        for k in keys:
-            self.__remove_torrent(k)
-        return keys
+        res = []
+        for k in self.handle_by_name.keys():
+            res.append(self.__remove_torrent(k))
+        return res
 
     def __toggle_pause(self, name):
         self.l.log("TorrentAgent:toggle_pause " + name)
