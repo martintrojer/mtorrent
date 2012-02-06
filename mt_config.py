@@ -33,7 +33,7 @@ default = { "log_level": L.WARN,
 
             "version": MTORRENT_VERSION,
             "version_long": ".oO mtorrent " + MTORRENT_VERSION + " (libtorrent-rasterbar " + LT.version + ") Oo.",
-            "version_short": "mtorrent" + MTORRENT_VERSION + "/lbtorrent" + LT.version,
+            "version_short": "mtorrent" + MTORRENT_VERSION + "/libtorrent" + LT.version,
 
             #seconds
             "state_update_delay": 2.5,

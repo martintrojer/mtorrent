@@ -25,7 +25,7 @@ def readable_size(size):
     i = 0
     units = ["B", "kB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"]
     while size > 1024:
-        size = size / 1024
+        size = size / 1024.0
         i += 1
     return "%.1f%s" % (size, units[i])
 

@@ -42,6 +42,18 @@ class MTorrent:
         self.c = C.Config()
 
         self.lock_file = None
+	try:
+	    os.stat(self.c["session_path"])
+        except OSError:
+            raise NameError("mtorrent: session folder not found: " + self.c["session_path"])
+            return
+
+        try:
+            os.stat(self.c["watch_path"])
+        except OSError:
+            raise NameError("mtorrent: watch folder not found: " + self.c["watch_path"])
+            return
+
         try:
             os.stat(self.c["lock_file"])
             raise NameError("mtorrent error; Lockfile present, you might have another mtorrent running? If not, delete the '%s' file and restart mtorrent" % self.c["lock_file"])
