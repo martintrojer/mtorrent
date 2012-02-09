@@ -162,7 +162,12 @@ class TorrentAgent(T.Thread):
             self.l.log("TorrentAgent:error reading from " + filename, L.ERR)
             return
 
-        info = LT.torrent_info(torrent_data)
+        try:
+            info = LT.torrent_info(torrent_data)
+        except:
+            self.l.log("TorrentAgent:error adding torrent, corrupt file? " + filename, L.ERR)
+            return
+
         resume_data = self.__get_resume_data(str(info.info_hash()))
         
         h = self.session.add_torrent(info, self.c["save_path"],

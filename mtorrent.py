@@ -46,13 +46,11 @@ class MTorrent:
 	    os.stat(self.c["session_path"])
         except OSError:
             raise NameError("mtorrent: session folder not found: " + self.c["session_path"])
-            return
 
         try:
             os.stat(self.c["watch_path"])
         except OSError:
             raise NameError("mtorrent: watch folder not found: " + self.c["watch_path"])
-            return
 
         try:
             os.stat(self.c["lock_file"])
