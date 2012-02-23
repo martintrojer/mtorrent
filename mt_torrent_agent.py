@@ -133,7 +133,7 @@ class TorrentAgent(T.Thread):
             f = open(resume_name, 'rb')
             data = f.read()
             f.close()
-            return data
+            return LT.bdecode(data)
         except:
             self.l.log("TorrentAgent:error reading resume data from " + resume_name, L.DBG)
             return ""
@@ -171,7 +171,7 @@ class TorrentAgent(T.Thread):
         resume_data = self.__get_resume_data(str(info.info_hash()))
         
         h = self.session.add_torrent(info, self.c["save_path"],
-                                     resume_data=LT.bdecode(resume_data),
+                                     resume_data=resume_data,
                                      storage_mode=self.c["storage_mode"])
 
         self.__setup_handle(h)

@@ -52,10 +52,14 @@ class UI():
         self.w.refresh()
 
     def print_with_tag(self, s, tag, line):
-        self.w.move(line, 0)
-        self.w.clrtoeol()
-        self.print_str(tag, line, 0)
-        self.print_str(s, line, len(tag))
+        try:
+            # move might fail if outside the window
+            self.w.move(line, 0)
+            self.w.clrtoeol()
+            self.print_str(tag, line, 0)
+            self.print_str(s, line, len(tag))
+        except:
+            pass
 
     def print_message(self, s, level, line):
         if level == L.WARN:
@@ -131,4 +135,8 @@ class UI():
             self.print_with_tag(ipt, "magnet>", y-1)
 
         self.w.refresh()
-        self.w.move(0, 0)
+        try:
+            self.w.move(0, 0)
+        except:
+            pass
+
